@@ -71,12 +71,17 @@
 
         .game-info {
             display: flex;
+            flex-direction: column; /* Changed to column for vertical stacking */
             justify-content: space-between;
             width: 100%;
             max-width: 400px; /* Adjust as needed */
             color: #e2e8f0; /* Light text color */
             font-size: 1.125rem;
             font-weight: bold;
+            align-items: center; /* Center items horizontally in column */
+        }
+        .game-info div {
+            margin-bottom: 0.5rem; /* Add some space between score and high score */
         }
         .game-buttons {
             display: flex;
@@ -165,8 +170,8 @@
     <div class="game-container">
         <h1 class="text-3xl font-bold text-white mb-4">เกมงู</h1>
         <div class="game-info">
+            <div id="highScore" class="text-red-400">คะแนนสูงสุด: 0</div> <!-- Moved above and changed to red -->
             <div id="score" class="text-green-400">คะแนน: 0</div>
-            <div id="highScore" class="text-purple-400">คะแนนสูงสุด: 0</div>
         </div>
         <canvas id="gameCanvas"></canvas>
         <div class="game-buttons">
