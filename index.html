@@ -26,6 +26,8 @@
             flex-direction: column;
             align-items: center;
             gap: 1.5rem;
+            width: 90%; /* Make container responsive */
+            max-width: 500px; /* Max width for larger screens */
         }
         canvas {
             background-color: #4a5568; /* Canvas background */
@@ -33,6 +35,8 @@
             border-radius: 0.75rem; /* Rounded corners for canvas */
             display: block;
             touch-action: none; /* Disable default touch actions */
+            width: 100%; /* Make canvas fill container width */
+            height: auto; /* Maintain aspect ratio */
         }
         .controls {
             display: grid;
@@ -41,15 +45,16 @@
                 "left . right"
                 ". down .";
             gap: 0.5rem;
-            width: 200px; /* Fixed width for controls */
+            width: 80%; /* Make controls responsive */
+            max-width: 150px; /* Reduced max width for controls */
             margin-top: 1rem;
         }
         .control-button {
             background-color: #63b3ed; /* Blue button */
             color: white;
-            padding: 1rem;
+            padding: 0.75rem; /* Reduced padding */
             border-radius: 0.75rem; /* Rounded corners */
-            font-size: 1.25rem;
+            font-size: 1rem; /* Reduced font size */
             font-weight: bold;
             cursor: pointer;
             transition: background-color 0.2s, transform 0.1s;
@@ -192,10 +197,8 @@
         const ctx = canvas.getContext('2d');
 
         // Game settings
-        const gridSize = 20; // Size of each square in pixels
-        const tileCount = 20; // Number of tiles in width/height
-        canvas.width = gridSize * tileCount;
-        canvas.height = gridSize * tileCount;
+        const tileCount = 20; // Number of tiles in width/height (fixed)
+        let gridSize; // Size of each square in pixels (dynamic)
 
         let snake = [{ x: 10, y: 10 }]; // Initial snake position
         let food = {}; // Food position
@@ -214,9 +217,6 @@
         const startButton = document.getElementById('startButton');
         const restartButton = document.getElementById('restartButton');
         const controlButtons = document.querySelectorAll('.control-button');
-
-        // Initialize high score display
-        highScoreDisplay.textContent = `คะแนนสูงสุด: ${highScore}`;
 
         // Function to show a custom modal message
         function showModal(title, message, buttonText, onButtonClick) {
@@ -261,6 +261,17 @@
             ctx.lineTo(x, y + radius);
             ctx.quadraticCurveTo(x, y, x + radius, y);
             ctx.closePath();
+        }
+
+        // Function to set canvas size dynamically
+        function setCanvasSize() {
+            const containerWidth = canvas.parentElement.clientWidth; // Get width of parent container
+            // Set canvas dimensions to be a square, max 400px, or 90% of window width
+            const newCanvasSize = Math.min(containerWidth, 400, window.innerWidth * 0.9);
+            canvas.width = newCanvasSize;
+            canvas.height = newCanvasSize;
+            gridSize = canvas.width / tileCount; // Calculate gridSize based on new canvas width
+            draw(); // Redraw game elements after resizing
         }
 
         // Generate random food position
@@ -376,7 +387,7 @@
 
             // If game is started but snake is not moving (dx=0, dy=0), start the game loop
             // This ensures the game only starts moving after the first direction input
-            if (isGameStarted && dx !== 0 || dy !== 0) {
+            if (isGameStarted && (dx !== 0 || dy !== 0)) {
                 if (!gameInterval) { // Prevent multiple intervals
                     gameInterval = setInterval(gameLoop, gameSpeed);
                 }
@@ -406,7 +417,7 @@
                 }
 
                 // If game is started but snake is not moving (dx=0, dy=0), start the game loop
-                if (isGameStarted && dx !== 0 || dy !== 0) {
+                if (isGameStarted && (dx !== 0 || dy !== 0)) {
                     if (!gameInterval) { // Prevent multiple intervals
                         gameInterval = setInterval(gameLoop, gameSpeed);
                     }
@@ -438,13 +449,13 @@
         // Reset game state
         function resetGame() {
             snake = [{ x: 10, y: 10 }];
-            dx = 0; // ตั้งค่า dx เป็น 0 เพื่อให้งูหยุดนิ่งเมื่อเริ่มใหม่
-            dy = 0; // ตั้งค่า dy เป็น 0 เพื่อให้งูหยุดนิ่งเมื่อเริ่มใหม่
+            dx = 0; // Set dx to 0 to make the snake stationary on reset
+            dy = 0; // Set dy to 0 to make the snake stationary on reset
             score = 0;
             gameSpeed = 150;
             isGameOver = false;
             isGameStarted = false; // Reset game started flag
-            scoreDisplay.textContent = `คะแนน: 0`;
+            scoreDisplay.textContent = `คะคะแนน: 0`;
             generateFood();
             draw(); // Draw initial state
             startButton.classList.remove('hidden'); // Show start button
@@ -467,7 +478,11 @@
         restartButton.addEventListener('click', resetGame);
 
         // Initial setup
+        // Call setCanvasSize initially and on window resize
+        window.addEventListener('load', setCanvasSize);
+        window.addEventListener('resize', setCanvasSize);
         resetGame(); // Set up initial game state and display
+        highScoreDisplay.textContent = `คะแนนสูงสุด: ${highScore}`; // Initialize high score display
     </script>
 </body>
 </html>
