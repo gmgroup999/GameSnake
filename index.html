@@ -76,17 +76,17 @@
 
         .game-info {
             display: flex;
-            flex-direction: column; /* Changed to column for vertical stacking */
-            justify-content: space-between;
+            flex-direction: row; /* Changed to row for horizontal display */
+            justify-content: space-around; /* Distribute space evenly */
             width: 100%;
             max-width: 400px; /* Adjust as needed */
             color: #e2e8f0; /* Light text color */
             font-size: 1.125rem;
             font-weight: bold;
-            align-items: center; /* Center items horizontally in column */
+            align-items: center; /* Center items vertically in row */
         }
         .game-info div {
-            margin-bottom: 0.5rem; /* Add some space between score and high score */
+            margin: 0 0.5rem; /* Add horizontal margin for spacing */
         }
         .game-buttons {
             display: flex;
