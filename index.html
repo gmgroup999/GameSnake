@@ -21,12 +21,12 @@
             background-color: #2d3748; /* Slightly lighter dark background for container */
             border-radius: 1rem; /* Rounded corners */
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* Shadow */
-            padding: 2rem;
+            padding: 1.5rem; /* Reduced padding for smaller screens */
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 1.5rem;
-            width: 90%; /* Make container responsive */
+            width: 95%; /* Make container slightly wider for more space */
             max-width: 500px; /* Max width for larger screens */
         }
         canvas {
@@ -44,17 +44,17 @@
                 ". up ."
                 "left . right"
                 ". down .";
-            gap: 0.5rem;
-            width: 80%; /* Make controls responsive */
-            max-width: 150px; /* Reduced max width for controls */
+            gap: 0.25rem; /* Reduced gap between buttons */
+            width: 100%; /* Make controls fill container width */
+            max-width: 120px; /* Further reduced max width for controls */
             margin-top: 1rem;
         }
         .control-button {
             background-color: #63b3ed; /* Blue button */
             color: white;
-            padding: 0.75rem; /* Reduced padding */
+            padding: 0.6rem; /* Further reduced padding */
             border-radius: 0.75rem; /* Rounded corners */
-            font-size: 1rem; /* Reduced font size */
+            font-size: 0.9rem; /* Further reduced font size */
             font-weight: bold;
             cursor: pointer;
             transition: background-color 0.2s, transform 0.1s;
@@ -455,7 +455,7 @@
             gameSpeed = 150;
             isGameOver = false;
             isGameStarted = false; // Reset game started flag
-            scoreDisplay.textContent = `คะคะแนน: 0`;
+            scoreDisplay.textContent = `คะแนน: 0`;
             generateFood();
             draw(); // Draw initial state
             startButton.classList.remove('hidden'); // Show start button
