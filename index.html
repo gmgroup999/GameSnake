@@ -170,7 +170,7 @@
     <div class="game-container">
         <h1 class="text-3xl font-bold text-white mb-4">เกมงู</h1>
         <div class="game-info">
-            <div id="highScore" class="text-red-400">คะแนนสูงสุด: 0</div> <!-- Moved above and changed to red -->
+            <div id="highScore" class="text-red-400">คะแนนสูงสุด: 0</div>
             <div id="score" class="text-green-400">คะแนน: 0</div>
         </div>
         <canvas id="gameCanvas"></canvas>
@@ -248,6 +248,21 @@
             document.body.appendChild(modalOverlay);
         }
 
+        // Helper function to draw a rounded rectangle
+        function roundRect(ctx, x, y, width, height, radius) {
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.lineTo(x + width - radius, y);
+            ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+            ctx.lineTo(x + width, y + height - radius);
+            ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+            ctx.lineTo(x + radius, y + height);
+            ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+            ctx.lineTo(x, y + radius);
+            ctx.quadraticCurveTo(x, y, x + radius, y);
+            ctx.closePath();
+        }
+
         // Generate random food position
         function generateFood() {
             food = {
@@ -270,9 +285,20 @@
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             // Draw snake
-            ctx.fillStyle = '#48bb78'; // Green for snake
-            snake.forEach(segment => {
-                ctx.fillRect(segment.x * gridSize, segment.y * gridSize, gridSize, gridSize);
+            snake.forEach((segment, index) => {
+                const x = segment.x * gridSize;
+                const y = segment.y * gridSize;
+                const segmentRadius = gridSize / 4; // Adjust for desired roundness
+
+                if (index === 0) {
+                    ctx.fillStyle = '#68d391'; // Lighter green for head to make it distinct and "cute"
+                } else {
+                    ctx.fillStyle = '#48bb78'; // Original green for body segments
+                }
+
+                // Draw rounded rectangle for each segment
+                roundRect(ctx, x, y, gridSize, gridSize, segmentRadius);
+                ctx.fill();
             });
 
             // Draw food
@@ -332,6 +358,7 @@
         document.addEventListener('keydown', e => {
             if (isGameOver || !isGameStarted) return; // Prevent input if game is over or not started
 
+            // Only allow direction change if the snake is not currently moving in the opposite direction
             switch (e.key) {
                 case 'ArrowUp':
                     if (dy === 0) { dx = 0; dy = -1; }
@@ -346,6 +373,14 @@
                     if (dx === 0) { dx = 1; dy = 0; }
                     break;
             }
+
+            // If game is started but snake is not moving (dx=0, dy=0), start the game loop
+            // This ensures the game only starts moving after the first direction input
+            if (isGameStarted && dx !== 0 || dy !== 0) {
+                if (!gameInterval) { // Prevent multiple intervals
+                    gameInterval = setInterval(gameLoop, gameSpeed);
+                }
+            }
         });
 
         // Handle touch/click input for control buttons
@@ -354,6 +389,7 @@
                 if (isGameOver || !isGameStarted) return;
 
                 const direction = button.dataset.direction;
+                // Only allow direction change if the snake is not currently moving in the opposite direction
                 switch (direction) {
                     case 'up':
                         if (dy === 0) { dx = 0; dy = -1; }
@@ -368,13 +404,23 @@
                         if (dx === 0) { dx = 1; dy = 0; }
                         break;
                 }
+
+                // If game is started but snake is not moving (dx=0, dy=0), start the game loop
+                if (isGameStarted && dx !== 0 || dy !== 0) {
+                    if (!gameInterval) { // Prevent multiple intervals
+                        gameInterval = setInterval(gameLoop, gameSpeed);
+                    }
+                }
             });
         });
 
         // Game over function
         function gameOver() {
             isGameOver = true;
-            clearInterval(gameInterval);
+            clearInterval(gameInterval); // Stop the game loop
+
+            // Clear gameInterval to prevent it from restarting automatically
+            gameInterval = null;
 
             if (score > highScore) {
                 highScore = score;
@@ -392,8 +438,8 @@
         // Reset game state
         function resetGame() {
             snake = [{ x: 10, y: 10 }];
-            dx = 0;
-            dy = 0;
+            dx = 0; // ตั้งค่า dx เป็น 0 เพื่อให้งูหยุดนิ่งเมื่อเริ่มใหม่
+            dy = 0; // ตั้งค่า dy เป็น 0 เพื่อให้งูหยุดนิ่งเมื่อเริ่มใหม่
             score = 0;
             gameSpeed = 150;
             isGameOver = false;
@@ -403,6 +449,8 @@
             draw(); // Draw initial state
             startButton.classList.remove('hidden'); // Show start button
             restartButton.classList.add('hidden'); // Hide restart button
+            clearInterval(gameInterval); // Ensure any running interval is cleared
+            gameInterval = null; // Reset gameInterval
         }
 
         // Start game function
@@ -411,7 +459,7 @@
             isGameStarted = true;
             startButton.classList.add('hidden'); // Hide start button
             restartButton.classList.add('hidden'); // Hide restart button if visible
-            gameInterval = setInterval(gameLoop, gameSpeed);
+            // Game loop will now start on first direction input
         }
 
         // Event listeners for start and restart buttons
