@@ -25,10 +25,9 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 1.5rem; /* Gap between direct children */
+            gap: 1.5rem;
             width: 95%; /* Make container slightly wider for more space */
             max-width: 500px; /* Max width for larger screens */
-            height: auto; /* Allow height to adjust based on content */
         }
         canvas {
             background-color: #4a5568; /* Canvas background */
@@ -36,7 +35,8 @@
             border-radius: 0.75rem; /* Rounded corners for canvas */
             display: block;
             touch-action: none; /* Disable default touch actions */
-            /* Width and height will be set by JavaScript */
+            width: 100%; /* Make canvas fill container width */
+            height: auto; /* Maintain aspect ratio */
         }
         .controls {
             display: grid;
@@ -263,70 +263,14 @@
             ctx.closePath();
         }
 
-        // Function to set canvas size dynamically to 9:16 aspect ratio
+        // Function to set canvas size dynamically
         function setCanvasSize() {
-            const gameContainer = document.querySelector('.game-container');
-            const h1Element = document.querySelector('h1');
-            const gameInfoElement = document.querySelector('.game-info');
-            const gameButtonsElement = document.querySelector('.game-buttons');
-            const controlsElement = document.querySelector('.controls');
-
-            const containerStyle = getComputedStyle(gameContainer);
-            const containerPaddingTop = parseFloat(containerStyle.paddingTop);
-            const containerPaddingBottom = parseFloat(containerStyle.paddingBottom);
-            const containerGap = parseFloat(containerStyle.gap);
-
-            // Calculate heights of fixed elements
-            const h1Height = h1Element.offsetHeight;
-            const gameInfoHeight = gameInfoElement.offsetHeight;
-            const gameButtonsHeight = gameButtonsElement.offsetHeight;
-            const controlsHeight = controlsElement.offsetHeight;
-
-            // Total vertical space taken by non-canvas elements and gaps
-            // There are 4 gaps: h1-game-info, game-info-canvas, canvas-game-buttons, game-buttons-controls
-            const fixedVerticalSpace = h1Height + gameInfoHeight + gameButtonsHeight + controlsHeight + (containerGap * 4);
-            const totalVerticalPadding = containerPaddingTop + containerPaddingBottom;
-
-            // Available height for the canvas
-            const availableHeightForCanvas = window.innerHeight - fixedVerticalSpace - totalVerticalPadding;
-
-            // Available width for the canvas (considering container's width and padding)
-            const availableWidthForCanvas = gameContainer.clientWidth - (parseFloat(containerStyle.paddingLeft) + parseFloat(containerStyle.paddingRight));
-
-            // Desired aspect ratio (9:16, so height / width = 16 / 9)
-            const aspectRatio = 16 / 9;
-
-            let newCanvasWidth;
-            let newCanvasHeight;
-
-            // Try to fit based on available width first
-            newCanvasWidth = availableWidthForCanvas;
-            newCanvasHeight = newCanvasWidth * aspectRatio;
-
-            // If the calculated height is too tall for the available vertical space,
-            // then scale down based on available height
-            if (newCanvasHeight > availableHeightForCanvas) {
-                newCanvasHeight = availableHeightForCanvas;
-                newCanvasWidth = newCanvasHeight / aspectRatio;
-            }
-
-            // Ensure canvas doesn't get too small or too big
-            const minCanvasSize = 100; // Minimum width
-            const maxCanvasSize = 400; // Maximum width for desktop-like view
-
-            if (newCanvasWidth < minCanvasSize) {
-                newCanvasWidth = minCanvasSize;
-                newCanvasHeight = newCanvasWidth * aspectRatio;
-            }
-            if (newCanvasWidth > maxCanvasSize) {
-                newCanvasWidth = maxCanvasSize;
-                newCanvasHeight = newCanvasWidth * aspectRatio;
-            }
-
-            // Apply the calculated dimensions to the canvas
-            canvas.width = newCanvasWidth;
-            canvas.height = newCanvasHeight;
-            gridSize = canvas.width / tileCount; // Recalculate gridSize based on new width
+            const containerWidth = canvas.parentElement.clientWidth; // Get width of parent container
+            // Set canvas dimensions to be a square, max 400px, or 90% of window width
+            const newCanvasSize = Math.min(containerWidth, 400, window.innerWidth * 0.9);
+            canvas.width = newCanvasSize;
+            canvas.height = newCanvasSize;
+            gridSize = canvas.width / tileCount; // Calculate gridSize based on new canvas width
             draw(); // Redraw game elements after resizing
         }
 
